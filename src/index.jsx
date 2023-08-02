@@ -2,7 +2,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 
 import {
-  APP_INIT_ERROR, APP_READY, subscribe, initialize,
+  APP_INIT_ERROR, APP_READY, subscribe, initialize, getConfig,
 } from '@edx/frontend-platform';
 import { AppProvider, ErrorPage } from '@edx/frontend-platform/react';
 import ReactDOM from 'react-dom';
@@ -12,6 +12,9 @@ import Footer, { messages as footerMessages } from '@edx/frontend-component-foot
 
 import appMessages from './i18n';
 import ExamplePage from './example/ExamplePage';
+import { configure as configureI18n } from '@edx/frontend-platform/i18n/lib';
+import { getLocale } from '@edx/frontend-platform/i18n';
+import { getLoggingService, logError } from '@edx/frontend-platform/logging';
 
 import './index.scss';
 
@@ -27,6 +30,15 @@ subscribe(APP_READY, () => {
 });
 
 subscribe(APP_INIT_ERROR, (error) => {
+  try {
+    getLocale('en');
+  } catch (e) {
+    configureI18n({
+      messages: {},
+      config: getConfig(),
+      loggingService: getLoggingService(),
+    });
+  }
   ReactDOM.render(<ErrorPage message={error.message} />, document.getElementById('root'));
 });
 
